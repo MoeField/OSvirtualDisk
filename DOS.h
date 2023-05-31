@@ -17,7 +17,8 @@ public:
 
     IndexNode* curDir;//µ±Ç°Ä¿Â¼
 public:
-    DOS();
+    DOS(string fname="virtDisk.vd");
+    ~DOS();
 
     int mkdir(string);
 

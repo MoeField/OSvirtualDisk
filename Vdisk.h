@@ -26,7 +26,7 @@ public:
 
     int clearBlocks(long long);
 
-    vector <IndexNode> readIndex(long long fBlockNum = 0);
+    vector<IndexNode> readIndex(long long fBlockNum = 0);
     int writeIndex(const vector<IndexNode>&, long long distBlockNum = 0);
 
     vector<char> readFile(long long);

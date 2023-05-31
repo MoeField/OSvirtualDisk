@@ -1,8 +1,14 @@
 #include "DOS.h"
 
+DOS::DOS(string fname):disk(fname) 
+{
+	diskDirList=disk.readIndex();
+	curDir= &diskDirList[0];
+}
 
-
-
+DOS::~DOS() {
+	;
+}
 
 
 int DOS::del_r(IndexNode& trash) {
