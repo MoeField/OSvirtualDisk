@@ -23,7 +23,9 @@ public:
     long long fBlock;//文件第一个块的位置，若为目录则无效（0）
     vector<IndexNode*> children;
     IndexNode* father;
-    IndexNode(char* , char, long long, IndexNode*);
-    int addChild(vector<IndexNode>&, IndexRec&);
+
+    IndexNode(const char* , char, long long, IndexNode*);
     string fullPath();
 };
+
+int addChild(vector<IndexNode>&, IndexRec&);

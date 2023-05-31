@@ -18,7 +18,7 @@ IndexRec::IndexRec(long f, const char* n, char t, long long fbn) :
 
 //Index treeNode in RAM
 IndexNode::IndexNode(
-    char* ne,//name
+    const char* ne,//name
     char ty,//type
     long long fb,//if type is file, fb is first fileBlockNum
     IndexNode* fa//node father
@@ -32,16 +32,6 @@ IndexNode::IndexNode(
     name[22] = '\0';
 }
 
-
-
-int IndexNode::addChild(vector<IndexNode>& index, IndexRec& rec) {
-    IndexNode temp(rec.name, rec.type, rec.fBlock, &index[rec.fatherNum]);
-    index.push_back(temp);
-    index[rec.fatherNum].children.push_back(&index[index.size() - 1]);
-
-    return 0;
-}
-
 string IndexNode::fullPath() {
     string tmp = "/";
     IndexNode* pathPtr = this;
@@ -50,4 +40,18 @@ string IndexNode::fullPath() {
         pathPtr = pathPtr->father;
     }
     return tmp;
+}
+
+int addChild(vector<IndexNode>& index, IndexRec& rec) {
+    IndexNode temp(
+        rec.name,
+        rec.type,
+        rec.fBlock,
+        rec.fatherNum >= 0 ? &index[rec.fatherNum] : nullptr
+    );
+    index.push_back(temp);
+    if (rec.fatherNum >= 0) {
+        index[rec.fatherNum].children.push_back(&index[index.size() - 1]);
+    }
+    return 0;
 }
