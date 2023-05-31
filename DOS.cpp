@@ -65,6 +65,7 @@ int DOS::mkdir(string name) {
 	IndexNode newDir(name.c_str(), 'D', -1, curDir);
 	diskDirList.push_back(newDir);
 	curDir->children.push_back(&diskDirList.back());
+	cout<<"New directory created!"<<endl;
 	//将更新后的目录写入磁盘
 	disk.writeIndex(diskDirList);
 	return 0;

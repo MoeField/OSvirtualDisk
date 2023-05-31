@@ -9,7 +9,9 @@ using namespace std;
 int main(){
     cout << "Hello World!\n";
     DOS dos("aa.vd");
-    //cout<<dos.curDir->name<<endl;
+    dos.mkdir("a");
+    dos.mkdir("b");
+
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
