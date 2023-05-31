@@ -3,7 +3,18 @@
 DOS::DOS(string fname):disk(fname) 
 {
 	diskDirList = disk.readIndex();//读取磁盘目录
+	//如果磁盘目录为空，创建根目录
+	if (diskDirList.empty()) {
+		cout<<"No index file found, creating a new one..."<<endl;
+		IndexNode root("", 'D', -1, nullptr);
+		diskDirList.push_back(root);
+		disk.writeIndex(diskDirList);
+	}
+	//打印目录
+
 	curDir= &diskDirList[0];//当前目录指针，指向根目录
+	//_curDir = diskDirList.begin();
+	cout<<"Current directory: _"<<curDir->name<<"/" << endl;
 }
 
 DOS::~DOS() {
@@ -54,9 +65,15 @@ int DOS::help(string command){
 
 
 int DOS::mkdir(string name) {
+	//如果含有空格，报错
+	 if (name.find(' ') != string::npos) {
+		cout<<"Invalid name! Do not use space in name."<<endl;
+		return -1;
+	}
+	
 	//查找当前目录下是否存同名文件或目录
 	for (long i = 0; i < curDir->children.size(); i++) {
-		if (curDir->children[i]->name == name) {
+		if (string(curDir->children[i]->name) == name) {
 			cout<<"Same name file or directory exists!"<<endl;
 			return -1;
 		}
@@ -64,9 +81,29 @@ int DOS::mkdir(string name) {
 	//创建新目录
 	IndexNode newDir(name.c_str(), 'D', -1, curDir);
 	diskDirList.push_back(newDir);
-	curDir->children.push_back(&diskDirList.back());
+	if (!diskDirList.empty()) {
+		//cout << curDir->children.size()<<" " << curDir->children.max_size() << endl;
+		IndexNode* newDirP = &diskDirList.back();
+		//(*curDir).children.push_back(newDirP);
+		long curDirNo = 0;
+		for (long i = 0; i < diskDirList.size(); i++) {
+			if (diskDirList[i].father == curDir->father) {
+				if (string(diskDirList[i].name) == string(curDir->name)) {
+					curDirNo = i;
+					break;
+				}
+			}
+		}
+		diskDirList[curDirNo].children.push_back(newDirP);
+	}
+	else {
+		cerr<<"Error: diskDirList is empty!"<<endl;
+		return -1;
+	}
+
 	cout<<"New directory created!"<<endl;
 	//将更新后的目录写入磁盘
+
 	disk.writeIndex(diskDirList);
 	return 0;
 }

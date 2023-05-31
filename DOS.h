@@ -14,8 +14,8 @@ class DOS {
 public:
     Vdisk disk;
     vector<IndexNode> diskDirList;//盘的目录
-
-    IndexNode* curDir;//当前目录
+    //vector<IndexNode> ::iterator _curDir;
+    IndexNode *curDir;//当前目录
 public:
     DOS(string fname="virtDisk.vd");
     ~DOS();
