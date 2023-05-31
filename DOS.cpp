@@ -84,9 +84,11 @@ int DOS::mkdir(string name) {
 	if (!diskDirList.empty()) {
 		//cout << curDir->children.size()<<" " << curDir->children.max_size() << endl;
 		IndexNode* newDirP = &diskDirList.back();
-		//(*curDir).children.push_back(newDirP);
-		long curDirNo = 0;
-		for (long i = 0; i < diskDirList.size(); i++) {
+		//(*curDir).children.push_back(newDirP);// bug:读写权限不足
+
+		//遍历目录记录，找到当前目录的序号
+		unsigned long curDirNo = 0;
+		for (unsigned long i = 0; i < diskDirList.size(); i++) {
 			if (diskDirList[i].father == curDir->father) {
 				if (string(diskDirList[i].name) == string(curDir->name)) {
 					curDirNo = i;

@@ -2,11 +2,11 @@
 
 //Index Record in ROM
 IndexRec::IndexRec() :
-    fatherNum(-1), name("\0"), type('N'), fBlock(-1) {}
+    fatherNum(-1), name(""), type('N'), fBlock(-1) {}
 
 
 IndexRec::IndexRec(long f, const char* n, char t, long long fbn) :
-    fatherNum(f), name("\0"), type(t), fBlock(fbn) {
+    fatherNum(f), name(""), type(t), fBlock(fbn) {
     //strcpy_s(name, 23, n);
     for (int i = 0; i < 22; i++) {
         name[i] = n[i];
@@ -22,7 +22,7 @@ IndexNode::IndexNode(
     char ty,//type
     long long fb,//if type is file, fb is first fileBlockNum
     IndexNode* fa//node father
-) :name("\0"), type(ty), fBlock(fb), father(fa)
+) :name(""), type(ty), fBlock(fb), father(fa)
 {   //copy ne to name
     for (int i = 0; i < 22; i++) {
         name[i] = ne[i];
