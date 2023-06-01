@@ -6,15 +6,14 @@ DOS::DOS(string fname) :disk(fname)
 	//如果磁盘目录为空，创建根目录
 	if (diskDirList.empty()) {
 		cout << "No index file found, creating a new one..." << endl;
-		IndexNode root("", 'D', -1, nullptr);
+		IndexNode root("", 'D', -1, -1);
 		diskDirList.push_back(root);
 		disk.writeIndex(diskDirList);
 	}
 	//打印目录
-
-	curDir = &diskDirList[0];//当前目录指针，指向根目录
+	curDir = 0;//当前目录指针，指向根目录
 	//_curDir = diskDirList.begin();
-	cout << "Current directory: _" << curDir->name << "/" << endl;
+	//cout << "Current directory: _" << curDir->name << "/" << endl;
 }
 
 DOS::~DOS() {
@@ -72,25 +71,15 @@ int DOS::mkdir(string name) {
 		cout << "Invalid name! Do not use space in name." << endl;
 		return -1;
 	}
-	//遍历目录记录，找到当前目录的序号
-	unsigned long curDirNo = 0;
-	for (unsigned long i = 0; i < diskDirList.size(); i++) {
-		if (diskDirList.at(i).father == curDir->father) {
-			if (strcmp(diskDirList[i].name, curDir->name) == 0) {
-				curDirNo = i;
-				cout << "curDirNo:" << curDirNo << endl;
-				break;
-			}
-		}
-	}
 
 	//查找当前目录下是否存同名文件或目录
-	for (long i = 0; i < diskDirList.at(curDirNo).children.size(); i++) {
-		cout << "childSize:" << diskDirList.at(curDirNo).children.size()
-			<< " which: " << i << " .name: " << diskDirList.at(curDirNo).children.at(i)->name << ", yourName:" << name.c_str()
-			<< " cmp:" << strcmp(diskDirList.at(curDirNo).children.at(i)->name, name.c_str()) << ":" << endl;;
+	for (long i = 0; i < diskDirList.at(curDir).children.size(); i++) {
 
-		if (strcmp(diskDirList.at(curDirNo).children.at(i)->name, name.c_str()) == 0) {
+		//cout << "childSize:" << diskDirList.at(curDirNo).children.size()
+		//	<< " which: " << i << " .name: " << diskDirList.at(curDirNo).children.at(i)->name << ", yourName:" << name.c_str()
+		//	<< " cmp:" << strcmp(diskDirList.at(curDirNo).children.at(i)->name, name.c_str()) << ":" << endl;;
+
+		if (strcmp(diskDirList.at(diskDirList.at(curDir).children.at(i)).name, name.c_str()) == 0) {
 			cout << "Same name file or directory exists! (name: " << name << " )\n" << endl;
 			return -1;
 		}
@@ -102,8 +91,9 @@ int DOS::mkdir(string name) {
 		//cout << curDir->children.size()<<" " << curDir->children.max_size() << endl;
 		IndexNode* newDirP = &diskDirList.back();
 		//(*curDir).children.push_back(newDirP);// bug:读写权限不足
-		diskDirList.at(curDirNo).children.push_back(newDirP);
-		curDir = &diskDirList.at(curDirNo);
+
+		//diskDirList.at(curDirNo).children.push_back(newDirP);
+		
 	}
 	else {
 		cerr << "Error: diskDirList is empty!" << endl;
@@ -111,8 +101,14 @@ int DOS::mkdir(string name) {
 	}
 
 	cout << "New directory created! " << name << endl << endl;
-	//将更新后的目录写入磁盘
 
+	for (long i = 0; i < diskDirList.at(curDir).children.size(); i++) {
+		cout << "childSize:" << diskDirList.at(curDir).children.size()
+			<< " which: " << i << " .name: " << diskDirList.at(diskDirList.at(curDir).children.at(i)).name << ", yourName:" << name.c_str()
+			<< " cmp:" << strcmp(diskDirList.at(diskDirList.at(curDir).children.at(i)).name, name.c_str()) << ":" << endl;
+	}
+
+	//将更新后的目录写入磁盘
 	disk.writeIndex(diskDirList);
 	disk.readIndex();
 	return 0;
@@ -120,11 +116,11 @@ int DOS::mkdir(string name) {
 
 int DOS::rm(string trashName) {
 	//查找当前目录下是否存在该文件或目录
-	IndexNode* trash = nullptr;
+	long trash = -1;
 	bool exist = false;
-	for (long i = 0; i < curDir->children.size(); i++) {
-		if (strcmp(curDir->children.at(i)->name, trashName.c_str()) == 0) {
-			trash = curDir->children.at(i);
+	for (long i = 0; i < diskDirList.at(curDir).children.size(); i++) {
+		if (strcmp(diskDirList.at(diskDirList.at(curDir).children.at(i)).name, trashName.c_str()) == 0) {
+			trash = diskDirList.at(curDir).children.at(i);
 			exist = true;
 			break;
 		}
@@ -135,39 +131,36 @@ int DOS::rm(string trashName) {
 		return -1;
 	}
 	//记录所有需要递归删除的元素（广度优先）
-	vector<IndexNode*> toDel;
+	vector<long> toDel;
 	toDel.push_back(trash);
-	IndexNode* rP = toDel[0];
-	for (int i = 0; i < rP->children.size(); i++) {
-		toDel.push_back(rP->children.at(i));
-	}
-	while (rP != toDel.back()) {
+	long rP = 0;
+	
+	while (rP < toDel.size()) {
 		rP++;
-		for (int i = 0; i < rP->children.size(); i++) {
-			toDel.push_back(rP->children.at(i));
+		for (long i = 0; i < diskDirList.at(toDel.at(rP)).children.size(); i++) {
+			toDel.push_back(diskDirList.at(toDel.at(rP)).children.at(i));
 		}
 	}
+
 	//执行删除
 	while (!toDel.empty()) {
-		auto dP = toDel.back();
+		long dP = toDel.back();
 		toDel.pop_back();
-		//遍历磁盘目录(vector内存不一定连续，不能用直接寻址)
-		for (long i = 0; i < diskDirList.size(); i++) {
-			if (diskDirList[i].father != dP->father) { continue; }
-			if (string(diskDirList[i].name) != string(dP->name)) { continue; }
-			//元素删除列表中最后一位记录之后的所有元素的上层目录指针自减
-			for (
-				vector<IndexNode>::iterator itDec = diskDirList.end() - 1;
-				itDec != diskDirList.begin() + i; itDec--) {
-				itDec->father--;
-			}
-			//如果是文件，释放磁盘空间
-			if (dP->type == 'F' && dP->fBlock > 0) {
-				disk.clearBlocks(dP->fBlock);
-			}
-			diskDirList.erase(diskDirList.begin() + i);
-			break;
+		//如果diskDirList.at(dP)是文件，释放文件快空间
+		if (diskDirList.at(dP).type == 'F') {
+			disk.clearBlocks(diskDirList.at(dP).fBlock);
 		}
+
+		//diskDirList.at(dP)之后的所有元素{father自减,children中的所有元素自减}
+		for (long i = dP + 1; i < diskDirList.size(); i++) {
+			diskDirList.at(i).father--;
+			for (long j = 0; j < diskDirList.at(i).children.size(); j++) {
+				diskDirList.at(i).children.at(j)--;
+			}
+		}
+		
+		//删除diskDirList.at(dP)记录
+		diskDirList.erase(diskDirList.begin() + dP);
 	}
 	//将更新后的目录写入磁盘
 	disk.writeIndex(diskDirList);

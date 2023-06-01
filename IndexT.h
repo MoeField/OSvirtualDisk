@@ -21,11 +21,11 @@ public:
     char name[23];
     char type;//type: Dir, File
     long long fBlock;//文件第一个块的位置，若为目录则无效（0）
-    vector<IndexNode*> children;
-    IndexNode* father;
+    vector< long> children;
+     long father;
 
-    IndexNode(const char* , char, long long, IndexNode*);
-    string fullPath();
+    IndexNode(const char* , char, long long,  long);
+    string fullPath(vector<IndexNode>& index);
 };
 
 int addChild(vector<IndexNode>&, IndexRec&);

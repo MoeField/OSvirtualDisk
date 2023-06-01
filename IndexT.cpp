@@ -21,7 +21,7 @@ IndexNode::IndexNode(
     const char* ne,//name
     char ty,//type
     long long fb,//if type is file, fb is first fileBlockNum
-    IndexNode* fa//node father
+    long fa//node father
 ) :name{ '\0' }, type(ty), fBlock(fb), father(fa)
 {   //copy ne to name
     for (int i = 0; i < 22; i++) {
@@ -32,12 +32,12 @@ IndexNode::IndexNode(
     name[22] = '\0';
 }
 
-string IndexNode::fullPath() {
-    string tmp = "/";
-    IndexNode* pathPtr = this;
-    while (pathPtr->father) {
-        tmp = "/" + string(pathPtr->name) + tmp;
-        pathPtr = pathPtr->father;
+string IndexNode::fullPath(vector<IndexNode>& index) {
+    string tmp = "/" + string(this->name);
+    long pathPtr = this->father;
+    while (pathPtr >=0) {
+        tmp = "/" + string(index.at(pathPtr).name) + tmp;
+        pathPtr = index.at(pathPtr).father;
     }
     return tmp;
 }
@@ -47,11 +47,11 @@ int addChild(vector<IndexNode>& index, IndexRec& rec) {
         rec.name,
         rec.type,
         rec.fBlock,
-        rec.fatherNum >= 0 ? &index.at(rec.fatherNum) : nullptr
+        rec.fatherNum
     );
     index.push_back(temp);
     if (rec.fatherNum >= 0) {
-        index.at(rec.fatherNum).children.push_back(&index.at(index.size() - 1));
+        index.at(rec.fatherNum).children.push_back(index.size() - 1);
     }
     return 0;
 }
