@@ -88,12 +88,7 @@ int DOS::mkdir(string name) {
 	IndexNode newDir(name.c_str(), 'D', -1, curDir);
 	diskDirList.push_back(newDir);
 	if (!diskDirList.empty()) {
-		//cout << curDir->children.size()<<" " << curDir->children.max_size() << endl;
-		IndexNode* newDirP = &diskDirList.back();
-		//(*curDir).children.push_back(newDirP);// bug:¶ÁÐ´È¨ÏÞ²»×ã
-
-		//diskDirList.at(curDirNo).children.push_back(newDirP);
-		
+		diskDirList.at(curDir).children.push_back(diskDirList.size()-1);
 	}
 	else {
 		cerr << "Error: diskDirList is empty!" << endl;
