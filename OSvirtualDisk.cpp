@@ -9,9 +9,13 @@ using namespace std;
 int main(){
     cout << "Hello World!\n";
     DOS dos("aa.vd");
-    dos.mkdir("a");
-    dos.mkdir("a");
-    dos.mkdir("b");
+
+    dos.mkdir("cat");
+    dos.mkdir("add");
+    dos.mkdir("add");
+    dos.mkdir("bee");
+    dos.mkdir("bee");
+    dos.mkdir("cat");
 
 }
 
