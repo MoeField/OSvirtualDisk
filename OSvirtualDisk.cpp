@@ -33,21 +33,21 @@ int main(){
     cout  << dos.fullPath() << "#" << endl;
     dos.rm("z");
     dos.rm("a");
-    /*
-    //vector<char> v;
-    //for (char i = 'a'; i <= 'z'; i++) {v.push_back(i);}
-    //dos.cat_w("xec", v);
+    
+    vector<char> v;
+    for (char i = 'a'; i <= 'z'; i++) {v.push_back(i);}
+    dos.cat_w("xec", v);
     dos.cat_r("xec");
     cout << endl;
 
-    //for (char i = 'A'; i <= 'Z'; i++) { v.push_back(i);}
-    //dos.cat_w("xec", v);
-    //dos.cat_a("xec", v);
-    //dos.cat_r("xec");
+    for (char i = 'A'; i <= 'Z'; i++) { v.push_back(i);}
+    dos.cat_w("xec", v);
+    dos.cat_a("xec", v);
+    dos.cat_r("xec");
 
-    system("pause");
+    //system("pause");
     cout << endl << endl;
-    */
+   
 
     /*
     for (char i = 'a'; i <= 'z'; i++) {

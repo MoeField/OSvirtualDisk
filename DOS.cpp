@@ -121,6 +121,7 @@ int DOS::cd(string childDirName) {
 	return 0;
 }
 
+
 int DOS::mkdir(string name) {
 	//如果含有空格,斜杠等符号，报错
 	if (
@@ -385,6 +386,8 @@ int DOS::cat_a(string fName, vector<char>& cont) {
 	for (vector<char>::iterator it = temp.begin(); it != temp.end(); it++) { cout << *it; }
 	cout << endl << "------------File-END------------" << endl;
 	cout << "New content appended:" << endl;
+	//删除temp结尾‘\0’
+	while (temp.back() == '\0')	{temp.pop_back();}
 	for (vector<char>::iterator it = cont.begin(); it != cont.end(); it++) {
 		cout << *it;
 		temp.push_back(*it);
