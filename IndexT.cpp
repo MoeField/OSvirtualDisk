@@ -32,15 +32,6 @@ IndexNode::IndexNode(
     name[22] = '\0';
 }
 
-string IndexNode::fullPath(vector<IndexNode>& index) {
-    string tmp = "/" + string(this->name);
-    long pathPtr = this->father;
-    while (pathPtr >=0) {
-        tmp = "/" + string(index.at(pathPtr).name) + tmp;
-        pathPtr = index.at(pathPtr).father;
-    }
-    return tmp;
-}
 
 int addChild(vector<IndexNode>& index, IndexRec& rec) {
     IndexNode temp(

@@ -158,7 +158,7 @@ int DOS::rm(string trashName) {
 		*/
 
 		//删除diskDirList.at(diskDirList.at(dP).father).children中的dP记录
-		cout << "dad before:" << diskDirList.at(diskDirList.at(dP).father).children.size() << endl;
+		//cout << "dad before:" << diskDirList.at(diskDirList.at(dP).father).children.size() << endl;
 		
 		diskDirList.at(diskDirList.at(dP).father).children.erase(
 			std::remove(
@@ -169,7 +169,7 @@ int DOS::rm(string trashName) {
 			diskDirList.at(diskDirList.at(dP).father).children.end()
 		);
 
-		cout << "dad after:" << diskDirList.at(diskDirList.at(dP).father).children.size() << endl;
+		//cout << "dad after:" << diskDirList.at(diskDirList.at(dP).father).children.size() << endl;
 
 		//删除diskDirList.at(dP)记录
 		/*
@@ -184,3 +184,58 @@ int DOS::rm(string trashName) {
 	return 0;
 }
 
+int DOS::cd(string childDirName) {
+	if (strcmp(childDirName.c_str(), "..")) {
+		this->curDir = diskDirList.at(curDir).father;
+		if (curDir < 0) {
+			curDir = 0;
+		}
+		return 0;
+	}
+	if (strcmp(childDirName.c_str(), ".")) {
+		return 0;
+	}
+	long childAbsNum = -1;
+	bool exist = false;
+	for (long i = 0; i < diskDirList.at(curDir).children.size(); i++) {
+		if (strcmp(diskDirList.at(diskDirList.at(curDir).children.at(i)).name, childDirName.c_str()) == 0) {
+			childAbsNum = diskDirList.at(curDir).children.at(i);
+			exist = true;
+			break;
+		}
+	}
+	//
+	if (!exist) {
+		cout << "None directory named " << childDirName << endl;
+		return -1;
+	}
+	if (diskDirList.at(childAbsNum).type != 'D') {
+		cout << childDirName << " is not a directory" << endl;
+		return -1;
+	}
+	this->curDir = childAbsNum;
+	return 0;
+}
+
+string DOS::fullPath() {
+	if (diskDirList.size() <= curDir) {
+		cerr << "curr out of range!" << endl;
+	}
+	string tmp = "/" + string(diskDirList.at(curDir).name);
+	long pathPtr = diskDirList.at(curDir).father;
+	while (pathPtr >= 0) {
+		tmp = "/" + string(diskDirList.at(pathPtr).name) + tmp;
+		pathPtr = diskDirList.at(pathPtr).father;
+	}
+	return tmp;
+}
+
+int DOS::ls() {
+	cout << "name\ttype" << endl;
+	for (long i = 0; i < diskDirList.at(curDir).children.size(); ++i) {
+		cout << diskDirList.at(diskDirList.at(curDir).children.at(i)).name << '\t' <<
+				diskDirList.at(diskDirList.at(curDir).children.at(i)).type << endl;
+	}
+	cout << endl;
+	return 0;
+}
