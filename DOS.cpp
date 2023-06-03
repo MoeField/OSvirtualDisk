@@ -88,7 +88,7 @@ int DOS::mkdir(string name) {
 	IndexNode newDir(name.c_str(), 'D', -1, curDir);
 	diskDirList.push_back(newDir);
 	if (!diskDirList.empty()) {
-		diskDirList.at(curDir).children.push_back(diskDirList.size()-1);
+		diskDirList.at(curDir).children.push_back(long(diskDirList.size()-1));
 	}
 	else {
 		cerr << "Error: diskDirList is empty!" << endl;
@@ -109,6 +109,7 @@ int DOS::mkdir(string name) {
 	return 0;
 }
 
+
 int DOS::rm(string trashName) {
 	//查找当前目录下是否存在该文件或目录
 	long trash = -1;
@@ -125,16 +126,17 @@ int DOS::rm(string trashName) {
 		cout << "None file or directory named " << trash << endl;
 		return -1;
 	}
+
 	//记录所有需要递归删除的元素（广度优先）
 	vector<long> toDel;
 	toDel.push_back(trash);
 	long rP = 0;
 	
 	while (rP < toDel.size()) {
-		rP++;
 		for (long i = 0; i < diskDirList.at(toDel.at(rP)).children.size(); i++) {
 			toDel.push_back(diskDirList.at(toDel.at(rP)).children.at(i));
 		}
+		rP++;
 	}
 
 	//执行删除
@@ -145,20 +147,40 @@ int DOS::rm(string trashName) {
 		if (diskDirList.at(dP).type == 'F') {
 			disk.clearBlocks(diskDirList.at(dP).fBlock);
 		}
-
-		//diskDirList.at(dP)之后的所有元素{father自减,children中的所有元素自减}
-		for (long i = dP + 1; i < diskDirList.size(); i++) {
-			diskDirList.at(i).father--;
-			for (long j = 0; j < diskDirList.at(i).children.size(); j++) {
+		/*
+		//diskDirList.at(dP)之后的所有元素{father大于dP则自减,children中的所有元素自减}
+		for (unsigned long i = dP + 1; i < diskDirList.size(); i++) {
+			for (unsigned long j = 0; j < diskDirList.at(i).children.size(); j++) {
 				diskDirList.at(i).children.at(j)--;
 			}
+			if (diskDirList.at(i).father > dP) { diskDirList.at(i).father--; }
 		}
+		*/
+
+		//删除diskDirList.at(diskDirList.at(dP).father).children中的dP记录
+		cout << "dad before:" << diskDirList.at(diskDirList.at(dP).father).children.size() << endl;
 		
+		diskDirList.at(diskDirList.at(dP).father).children.erase(
+			std::remove(
+				diskDirList.at(diskDirList.at(dP).father).children.begin(),
+				diskDirList.at(diskDirList.at(dP).father).children.end(),
+				dP
+			),
+			diskDirList.at(diskDirList.at(dP).father).children.end()
+		);
+
+		cout << "dad after:" << diskDirList.at(diskDirList.at(dP).father).children.size() << endl;
+
 		//删除diskDirList.at(dP)记录
+		/*
+		cout << "\n\ner:" << dP<<" name:" << diskDirList.at(dP).name<<" siz:"<< diskDirList.size() << endl;
 		diskDirList.erase(diskDirList.begin() + dP);
+		cout << " siz2:" << diskDirList.size() << endl;
+		*/
 	}
 	//将更新后的目录写入磁盘
 	disk.writeIndex(diskDirList);
+	disk.readIndex();
 	return 0;
 }
 
