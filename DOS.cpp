@@ -28,7 +28,7 @@ string DOS::fullPath() {
 	}
 	string tmp = "/" + string(diskDirList.at(curDir).name);
 	long pathPtr = diskDirList.at(curDir).father;
-	while (pathPtr >= 0) {
+	while (pathPtr > 0) {
 		tmp = "/" + string(diskDirList.at(pathPtr).name) + tmp;
 		pathPtr = diskDirList.at(pathPtr).father;
 	}
@@ -89,14 +89,14 @@ int DOS::help(string command) {
 };
 
 int DOS::cd(string childDirName) {
-	if (strcmp(childDirName.c_str(), "..")) {
+	if (strcmp(childDirName.c_str(), "..") == 0) {
 		this->curDir = diskDirList.at(curDir).father;
 		if (curDir < 0) {
 			curDir = 0;
 		}
 		return 0;
 	}
-	if (strcmp(childDirName.c_str(), ".")) {
+	if (strcmp(childDirName.c_str(), ".") == 0) {
 		return 0;
 	}
 	long childAbsNum = -1;
@@ -117,7 +117,7 @@ int DOS::cd(string childDirName) {
 		cout << childDirName << " is not a directory" << endl;
 		return -1;
 	}
-	this->curDir = childAbsNum;
+	curDir = childAbsNum;
 	return 0;
 }
 
@@ -125,14 +125,14 @@ int DOS::mkdir(string name) {
 	//如果含有空格,斜杠等符号，报错
 	if (
 		name.find(' ') != string::npos ||
-		name.find('\\')!= string::npos ||
+		name.find('\\') != string::npos ||
 		name.find('/') != string::npos ||
 		name.find('-') != string::npos ||
 		name.find('|') != string::npos ||
 		name.find('#') != string::npos ||
 		name.find('@') != string::npos ||
-		name.find('!') != string::npos 
-	) {
+		name.find('!') != string::npos
+		) {
 		cout << "Invalid name! Do not use special char in name." << endl;
 		return -1;
 	}
@@ -148,7 +148,7 @@ int DOS::mkdir(string name) {
 	IndexNode newDir(name.c_str(), 'D', -1, curDir);
 	diskDirList.push_back(newDir);
 	if (!diskDirList.empty()) {
-		diskDirList.at(curDir).children.push_back(long(diskDirList.size()-1));
+		diskDirList.at(curDir).children.push_back(long(diskDirList.size() - 1));
 	}
 	else {
 		cerr << "Error: diskDirList is empty!" << endl;
@@ -175,7 +175,7 @@ int DOS::rm(string trashName) {
 	}
 	//
 	if (!exist) {
-		cout << "None file or directory named " << trash << endl;
+		cout << "None file or directory named " << trashName << endl;
 		return -1;
 	}
 
@@ -183,7 +183,7 @@ int DOS::rm(string trashName) {
 	vector<long> toDel;
 	toDel.push_back(trash);
 	long rP = 0;
-	
+
 	while (rP < toDel.size()) {
 		for (long i = 0; i < diskDirList.at(toDel.at(rP)).children.size(); i++) {
 			toDel.push_back(diskDirList.at(toDel.at(rP)).children.at(i));
@@ -211,7 +211,7 @@ int DOS::rm(string trashName) {
 
 		//删除diskDirList.at(diskDirList.at(dP).father).children中的dP记录
 		//cout << "dad before:" << diskDirList.at(diskDirList.at(dP).father).children.size() << endl;
-		
+
 		diskDirList.at(diskDirList.at(dP).father).children.erase(
 			std::remove(
 				diskDirList.at(diskDirList.at(dP).father).children.begin(),
@@ -236,7 +236,162 @@ int DOS::rm(string trashName) {
 	return 0;
 }
 
-int DOS::cat(string) {
+int DOS::cat_r(string fName) {
+	long fNum = -1;
+	bool exist = false;
+	for (long i = 0; i < diskDirList.at(curDir).children.size(); i++) {
+		if (strcmp(diskDirList.at(diskDirList.at(curDir).children.at(i)).name, fName.c_str()) == 0) {
+			fNum = diskDirList.at(curDir).children.at(i);
+			exist = true;
+			break;
+		}
+	}
+	//
+	if (!exist) {
+		cout << "File Non Exist! " << fName << endl;
+		return -1;
+	}
+	else if (diskDirList.at(fNum).type != 'F') {
+		cout << fName << " is Not a File!" << endl;
+		return -1;
+	}
+	vector<char> temp = disk.readFile(diskDirList.at(fNum).fBlock);
+	//输出temp内容
+	cout << "File name: " << fName << "\tFile Content: " << endl;
+	cout << "----------File-Start-----------" << endl;
+	for (vector<char>::iterator it = temp.begin(); it != temp.end(); it++) { cout << *it; }
+	cout << endl << "------------File-END------------" << endl << endl;
+	return 0;
+}
 
+int DOS::cat_w(string fName, vector<char>& cont) {
+	//判断文件是否存在
+	long fNum = -1;
+	bool exist = false;
+	for (long i = 0; i < diskDirList.at(curDir).children.size(); i++) {
+		if (strcmp(diskDirList.at(diskDirList.at(curDir).children.at(i)).name, fName.c_str()) == 0) {
+			fNum = diskDirList.at(curDir).children.at(i);
+			exist = true;
+			break;
+		}
+	}
+	//
+	if (!exist) {
+		cout << "File Non Exist，create a new one." << endl;
+		//创建新文件
+		//如果含有空格,斜杠等符号，报错
+		if (
+			fName.find(' ') != string::npos ||
+			fName.find('\\') != string::npos ||
+			fName.find('/') != string::npos ||
+			fName.find('-') != string::npos ||
+			fName.find('|') != string::npos ||
+			fName.find('#') != string::npos ||
+			fName.find('@') != string::npos ||
+			fName.find('!') != string::npos
+			) {
+			cout << "Invalid name! Do not use special char in name." << endl;
+			return -1;
+		}
+		//创建新目录记录
+		IndexNode newDir(fName.c_str(), 'F', disk.minAvailable, curDir);
+		BlockHead th('F', -1, -1);
+		disk.writeBlock(Block(th), disk.minAvailable);
+		diskDirList.push_back(newDir);
+		if (!diskDirList.empty()) {
+			diskDirList.at(curDir).children.push_back(long(diskDirList.size() - 1));
+			while (disk.blockStatus[disk.minAvailable] != 'N' && disk.minAvailable < blockNum) {
+				disk.minAvailable++;
+			}
+		}
+		else {
+			cerr << "Error: diskDirList is empty!" << endl;
+			return -1;
+		}
+		cout << "New file created! " << fName << endl << endl;
+		//将更新后的目录写入磁盘
+		disk.writeIndex(diskDirList);
+		disk.readIndex();
+		fNum = diskDirList.size() - 1;
+	}
+	//如果fName存在，判断是否为文件
+	else if (diskDirList.at(fNum).type != 'F') {
+		cout << fName << " is Not a File!" << endl;
+		return -1;
+	}
+	//写入文件内容
+	cout << "Write to file: " << fName << endl;
+	disk.writeFile(cont, diskDirList.at(fNum).fBlock);
+	return 0;
+}
+
+int DOS::cat_a(string fName, vector<char>& cont) {
+	long fNum = -1;
+	bool exist = false;
+	for (long i = 0; i < diskDirList.at(curDir).children.size(); i++) {
+		if (strcmp(diskDirList.at(diskDirList.at(curDir).children.at(i)).name, fName.c_str()) == 0) {
+			fNum = diskDirList.at(curDir).children.at(i);
+			exist = true;
+			break;
+		}
+	}
+	//
+	if (!exist) {
+		cout << "File Non Exist，create a new one." << endl;
+		//创建新文件
+		//如果含有空格,斜杠等符号，报错
+		if (
+			fName.find(' ') != string::npos ||
+			fName.find('\\') != string::npos ||
+			fName.find('/') != string::npos ||
+			fName.find('-') != string::npos ||
+			fName.find('|') != string::npos ||
+			fName.find('#') != string::npos ||
+			fName.find('@') != string::npos ||
+			fName.find('!') != string::npos
+			) {
+			cout << "Invalid name! Do not use special char in name." << endl;
+			return -1;
+		}
+		//创建新目录记录
+		IndexNode newDir(fName.c_str(), 'F', disk.minAvailable, curDir);
+		BlockHead th('F', -1, -1);
+		disk.writeBlock(Block(th), disk.minAvailable);
+		diskDirList.push_back(newDir);
+		if (!diskDirList.empty()) {
+			diskDirList.at(curDir).children.push_back(long(diskDirList.size() - 1));
+			while (disk.blockStatus[disk.minAvailable] != 'N' && disk.minAvailable < blockNum) {
+				disk.minAvailable++;
+			}
+		}
+		else {
+			cerr << "Error: diskDirList is empty!" << endl;
+			return -1;
+		}
+		cout << "New file created! " << fName << endl << endl;
+		//将更新后的目录写入磁盘
+		disk.writeIndex(diskDirList);
+		disk.readIndex();
+		fNum = diskDirList.size() - 1;
+	}
+	else if (diskDirList.at(fNum).type != 'F') {
+		cout << fName << " is Not a File!" << endl;
+		return -1;
+	}
+	vector<char> temp = disk.readFile(diskDirList.at(fNum).fBlock);
+	//输出temp内容
+	cout << "File name: " << fName << "\tFile Content: " << endl;
+	cout << "----------File-Start-----------" << endl;
+	for (vector<char>::iterator it = temp.begin(); it != temp.end(); it++) { cout << *it; }
+	cout << endl << "------------File-END------------" << endl;
+	cout << "New content appended:" << endl;
+	for (vector<char>::iterator it = cont.begin(); it != cont.end(); it++) {
+		cout << *it;
+		temp.push_back(*it);
+	}
+	cout << endl << "-----------Append-END-----------" << endl << endl ;
+	//写入文件内容
+	//temp.insert(temp.end(), cont.begin(), cont.end());
+	disk.writeFile(temp, diskDirList.at(fNum).fBlock);
 	return 0;
 }

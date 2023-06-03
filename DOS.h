@@ -28,6 +28,8 @@ public:
     int mkdir(string);
     int rm(string);
 
-    int cat(string);
+    int cat_r(string);//read
+    int cat_w(string, vector<char>&);//write
+    int cat_a(string, vector<char>&);//append
 };
 
