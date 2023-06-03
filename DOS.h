@@ -19,12 +19,15 @@ public:
 public:
     DOS(string fname="virtDisk.vd");
     ~DOS();
-    int help(string command="");
     string fullPath();
+    int ls();
+    int help(string command="");
+
+    int cd(string);
+
     int mkdir(string);
     int rm(string);
+
     int cat(string);
-    int cd(string);
-    int ls();
 };
 

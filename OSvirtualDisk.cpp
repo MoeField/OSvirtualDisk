@@ -11,12 +11,31 @@ int main(){
     DOS dos("aa.vd");
 
 
-    for (char i = 'a'; i <= 'z'; i++) {
+    for (char i = 'a'; i <= 'f'; i++) {
         char x[2] = { i };
         cout << "mkdir:" << string(x) << endl;
         dos.mkdir(string(x));
     }
+    cout << dos.curDir << dos.fullPath() << "#" << endl;
     dos.ls();
+    dos.cd("z");
+    cout << dos.curDir << dos.fullPath() << "#" << endl;
+    dos.cd("a");
+    cout << dos.curDir << dos.fullPath() << "#" << endl;
+    for (char i = 'h'; i <= 'n'; i++) {
+        char x[2] = { i };
+        cout << "mkdir:" << string(x) << endl;
+        dos.mkdir(string(x));
+    }
+    cout << dos.curDir << dos.fullPath() << "#" << endl;
+    dos.ls();
+    dos.cd("..");
+    cout << dos.curDir << dos.fullPath() << "#" << endl;
+    dos.rm("z");
+    dos.rm("a");
+
+
+
     /*
     for (char i = 'a'; i <= 'z'; i++) {
         char x[2] = { i };

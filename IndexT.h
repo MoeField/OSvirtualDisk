@@ -28,5 +28,4 @@ public:
     
 };
 
-string fullPath(vector<IndexNode>& index, unsigned long curr);
 int addChild(vector<IndexNode>&, IndexRec&);

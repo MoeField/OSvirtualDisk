@@ -22,6 +22,30 @@ DOS::~DOS() {
 	disk.writeIndex(diskDirList);
 }
 //成员函数---------------------------------------------------------
+string DOS::fullPath() {
+	if (diskDirList.size() <= curDir) {
+		cerr << "curr out of range!" << endl;
+	}
+	string tmp = "/" + string(diskDirList.at(curDir).name);
+	long pathPtr = diskDirList.at(curDir).father;
+	while (pathPtr >= 0) {
+		tmp = "/" + string(diskDirList.at(pathPtr).name) + tmp;
+		pathPtr = diskDirList.at(pathPtr).father;
+	}
+	return tmp;
+}
+
+int DOS::ls() {
+	cout << "name\ttype" << endl;
+	for (long i = 0; i < diskDirList.at(curDir).children.size(); ++i) {
+		cout << diskDirList.at(diskDirList.at(curDir).children.at(i)).name << '\t' <<
+			diskDirList.at(diskDirList.at(curDir).children.at(i)).type << endl;
+	}
+	cout << endl;
+	return 0;
+}
+
+
 int DOS::help(string command) {
 	//默认为""(空字符串)
 	if (command == "") {
@@ -64,21 +88,57 @@ int DOS::help(string command) {
 	return 0;
 };
 
+int DOS::cd(string childDirName) {
+	if (strcmp(childDirName.c_str(), "..")) {
+		this->curDir = diskDirList.at(curDir).father;
+		if (curDir < 0) {
+			curDir = 0;
+		}
+		return 0;
+	}
+	if (strcmp(childDirName.c_str(), ".")) {
+		return 0;
+	}
+	long childAbsNum = -1;
+	bool exist = false;
+	for (long i = 0; i < diskDirList.at(curDir).children.size(); i++) {
+		if (strcmp(diskDirList.at(diskDirList.at(curDir).children.at(i)).name, childDirName.c_str()) == 0) {
+			childAbsNum = diskDirList.at(curDir).children.at(i);
+			exist = true;
+			break;
+		}
+	}
+	//
+	if (!exist) {
+		cout << "None directory named " << childDirName << endl;
+		return -1;
+	}
+	if (diskDirList.at(childAbsNum).type != 'D') {
+		cout << childDirName << " is not a directory" << endl;
+		return -1;
+	}
+	this->curDir = childAbsNum;
+	return 0;
+}
 
 int DOS::mkdir(string name) {
-	//如果含有空格，报错
-	if (name.find(' ') != string::npos) {
-		cout << "Invalid name! Do not use space in name." << endl;
+	//如果含有空格,斜杠等符号，报错
+	if (
+		name.find(' ') != string::npos ||
+		name.find('\\')!= string::npos ||
+		name.find('/') != string::npos ||
+		name.find('-') != string::npos ||
+		name.find('|') != string::npos ||
+		name.find('#') != string::npos ||
+		name.find('@') != string::npos ||
+		name.find('!') != string::npos 
+	) {
+		cout << "Invalid name! Do not use special char in name." << endl;
 		return -1;
 	}
 
 	//查找当前目录下是否存同名文件或目录
 	for (long i = 0; i < diskDirList.at(curDir).children.size(); i++) {
-
-		//cout << "childSize:" << diskDirList.at(curDirNo).children.size()
-		//	<< " which: " << i << " .name: " << diskDirList.at(curDirNo).children.at(i)->name << ", yourName:" << name.c_str()
-		//	<< " cmp:" << strcmp(diskDirList.at(curDirNo).children.at(i)->name, name.c_str()) << ":" << endl;;
-
 		if (strcmp(diskDirList.at(diskDirList.at(curDir).children.at(i)).name, name.c_str()) == 0) {
 			cout << "Same name file or directory exists! (name: " << name << " )\n" << endl;
 			return -1;
@@ -94,15 +154,7 @@ int DOS::mkdir(string name) {
 		cerr << "Error: diskDirList is empty!" << endl;
 		return -1;
 	}
-
 	cout << "New directory created! " << name << endl << endl;
-
-	for (long i = 0; i < diskDirList.at(curDir).children.size(); i++) {
-		cout << "childSize:" << diskDirList.at(curDir).children.size()
-			<< " which: " << i << " .name: " << diskDirList.at(diskDirList.at(curDir).children.at(i)).name << ", yourName:" << name.c_str()
-			<< " cmp:" << strcmp(diskDirList.at(diskDirList.at(curDir).children.at(i)).name, name.c_str()) << ":" << endl;
-	}
-
 	//将更新后的目录写入磁盘
 	disk.writeIndex(diskDirList);
 	disk.readIndex();
@@ -184,58 +236,7 @@ int DOS::rm(string trashName) {
 	return 0;
 }
 
-int DOS::cd(string childDirName) {
-	if (strcmp(childDirName.c_str(), "..")) {
-		this->curDir = diskDirList.at(curDir).father;
-		if (curDir < 0) {
-			curDir = 0;
-		}
-		return 0;
-	}
-	if (strcmp(childDirName.c_str(), ".")) {
-		return 0;
-	}
-	long childAbsNum = -1;
-	bool exist = false;
-	for (long i = 0; i < diskDirList.at(curDir).children.size(); i++) {
-		if (strcmp(diskDirList.at(diskDirList.at(curDir).children.at(i)).name, childDirName.c_str()) == 0) {
-			childAbsNum = diskDirList.at(curDir).children.at(i);
-			exist = true;
-			break;
-		}
-	}
-	//
-	if (!exist) {
-		cout << "None directory named " << childDirName << endl;
-		return -1;
-	}
-	if (diskDirList.at(childAbsNum).type != 'D') {
-		cout << childDirName << " is not a directory" << endl;
-		return -1;
-	}
-	this->curDir = childAbsNum;
-	return 0;
-}
+int DOS::cat(string) {
 
-string DOS::fullPath() {
-	if (diskDirList.size() <= curDir) {
-		cerr << "curr out of range!" << endl;
-	}
-	string tmp = "/" + string(diskDirList.at(curDir).name);
-	long pathPtr = diskDirList.at(curDir).father;
-	while (pathPtr >= 0) {
-		tmp = "/" + string(diskDirList.at(pathPtr).name) + tmp;
-		pathPtr = diskDirList.at(pathPtr).father;
-	}
-	return tmp;
-}
-
-int DOS::ls() {
-	cout << "name\ttype" << endl;
-	for (long i = 0; i < diskDirList.at(curDir).children.size(); ++i) {
-		cout << diskDirList.at(diskDirList.at(curDir).children.at(i)).name << '\t' <<
-				diskDirList.at(diskDirList.at(curDir).children.at(i)).type << endl;
-	}
-	cout << endl;
 	return 0;
 }
