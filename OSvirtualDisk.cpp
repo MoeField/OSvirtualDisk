@@ -7,56 +7,103 @@
 using namespace std;
 
 int main(){
-    cout << "Hello World!\n";
-    DOS dos("aa.vd");
+    DOS dos("test.vd");
+    while(true) {
+        cout << dos.fullPath() << "# " << flush;
+        string tcmd;
+        getline(cin, tcmd);
+        vector<string> cmds;
+        //遍历tcmd，分割命令，以空格为分隔符
+        int i = 0;
+        while (i < tcmd.length()) {
+			string xcmd;
+            while (i < tcmd.length() && tcmd[i] != ' ') {
+				xcmd += tcmd[i];
+				i++;
+			}
+            if (xcmd != "") {
+				cmds.push_back(xcmd);
+			}
+			i++;
+		}
+        //判断命令，执行相应DOS操作
 
+        if (cmds[0] == "exit") {
+			break;
+		}
+        else if (cmds[0] == "ls") {
+			dos.ls();
+		}
+        else if (cmds[0] == "cd") {
+            if (cmds.size() == 2) {
+				dos.cd(cmds[1]);
+			}
+            else {
+				cout << "参数错误" << endl;
+			}
+		}
+		else if (cmds[0] == "mkdir") {
+			if (cmds.size() == 2) {
+				dos.mkdir(cmds[1]);
+			}
+			else {
+				cout << "参数错误" << endl;
+			}
+		}
+		else if (cmds[0] == "rm") {
+			if (cmds.size() == 2) {
+				dos.rm(cmds[1]);
+			}
+			else {
+				cout << "参数错误" << endl;
+			}
+		}
+		
+		else if (cmds[0] == "cat") {
+			if (cmds.size() == 2) {
+				dos.cat_r(cmds[1]);
+			}
+			else if (cmds.size() == 3) {
+				if (cmds[1] == ">") {
+					vector<char> content;
+					cout<<"请输入文件内容，以回车结束"<<endl;
+					string line;
+					getline(cin, line);
+					for (int i = 0; i < line.length(); i++) {
+						content.push_back(line[i]);
+					}
+					content.push_back('\n');
+					
+					dos.cat_w(cmds[2],content);
+				}
+				else if (cmds[1] == ">>") {
+					vector<char> content;
+					cout << "请输入增加的文件内容，以回车结束" << endl;
+					string line;
+					getline(cin, line);
+					for (int i = 0; i < line.length(); i++) {
+						content.push_back(line[i]);
+					}
+					content.push_back('\n');
 
-    for (char i = 'a'; i <= 'f'; i++) {
-        char x[2] = { i };
-        cout << "mkdir:" << string(x) << endl;
-        dos.mkdir(string(x));
+					dos.cat_a(cmds[2], content);
+				}
+			}
+			else {
+				cout << "参数错误" << endl;
+			}
+		}
+		else if (cmds[0] == "cls") {
+			system("cls");
+		}
+		else if (cmds[0] == "help") {
+			dos.help();
+		}
+		else {
+			cout << "命令错误" << endl;
+		}
+
     }
-    cout  << dos.fullPath() << "#" << endl;
-    dos.ls();
-    dos.cd("z");
-    cout  << dos.fullPath() << "#" << endl;
-    dos.cd("a");
-    cout  << dos.fullPath() << "#" << endl;
-    for (char i = 'h'; i <= 'n'; i++) {
-        char x[2] = { i };
-        cout << "mkdir:" << string(x) << endl;
-        dos.mkdir(string(x));
-    }
-    cout  << dos.fullPath() << "#" << endl;
-    dos.ls();
-    dos.cd("..");
-    cout  << dos.fullPath() << "#" << endl;
-    dos.rm("z");
-    dos.rm("a");
-    
-    vector<char> v;
-    for (char i = 'a'; i <= 'z'; i++) {v.push_back(i);}
-    dos.cat_w("xec", v);
-    dos.cat_r("xec");
-    cout << endl;
-
-    for (char i = 'A'; i <= 'Z'; i++) { v.push_back(i);}
-    dos.cat_w("xec", v);
-    dos.cat_a("xec", v);
-    dos.cat_r("xec");
-
-    //system("pause");
-    cout << endl << endl;
-   
-
-    /*
-    for (char i = 'a'; i <= 'z'; i++) {
-        char x[2] = { i };
-        cout << "rm:" << string(x) << endl;
-        dos.rm(string(x));
-    }
-    */
-    //system("pause");
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
