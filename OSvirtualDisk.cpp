@@ -9,7 +9,7 @@ using namespace std;
 int main() {
 	DOS dos("test.vd");
 	while (true) {
-		cout << endl << dos.fullPath() << "# " << flush;
+		cout << dos.fullPath() << "# " << flush;
 		string tcmd;
 		getline(cin, tcmd);
 		vector<string> cmds;
@@ -76,6 +76,7 @@ int main() {
 		}
 		else { cout << "命令错误" << endl; }
 	}
+	cout << endl;
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
