@@ -22,10 +22,10 @@ public:
     char type;//type: Dir, File
     long long fBlock;//文件第一个块的位置，若为目录则无效（0）
     vector<long> children;
-     long father;
+    long father;
 
-    IndexNode(const char* , char, long long,  long);
-    
+    IndexNode(const char*, char, long long, long);
+
 };
 
 int addChild(vector<IndexNode>&, IndexRec&);

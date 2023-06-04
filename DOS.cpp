@@ -387,12 +387,12 @@ int DOS::cat_a(string fName, vector<char>& cont) {
 	cout << endl << "------------File-END------------" << endl;
 	cout << "New content appended:" << endl;
 	//删除temp结尾‘\0’
-	while (temp.back() == '\0')	{temp.pop_back();}
+	while (temp.back() == '\0') { temp.pop_back(); }
 	for (vector<char>::iterator it = cont.begin(); it != cont.end(); it++) {
 		cout << *it;
 		temp.push_back(*it);
 	}
-	cout << endl << "-----------Append-END-----------" << endl << endl ;
+	cout << endl << "-----------Append-END-----------" << endl << endl;
 	//写入文件内容
 	//temp.insert(temp.end(), cont.begin(), cont.end());
 	disk.writeFile(temp, diskDirList.at(fNum).fBlock);
