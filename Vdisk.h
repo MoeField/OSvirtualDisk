@@ -1,5 +1,5 @@
 #pragma once
-const long blockNum = 65536;//64K×1KB=64MB
+const long blockNum = 65536;//64K脳1024KB=64MB
 const long blockSize = 1024;//1KB
 #include <iostream>
 #include <fstream>
@@ -14,8 +14,8 @@ using namespace std;
 class Vdisk {
 public:
     fstream diskFile;
-    char* blockStatus;//type: Dir, File，Null
-    long long minAvailable;//最小可用块号
+    char* blockStatus;//type: Dir, File拢卢Null
+    long long minAvailable;//鏈�灏忓彲鐢ㄥ潡缂栧彿
 public:
     Vdisk(Vdisk&& disk) noexcept;
     Vdisk(string fileName);
