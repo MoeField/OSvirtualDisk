@@ -13,9 +13,9 @@ using namespace std;
 class DOS {
 public:
     Vdisk disk;
-    vector<IndexNode> diskDirList;//�̵�Ŀ¼
+    vector<IndexNode> diskDirList;//磁盘目录树
     //vector<IndexNode> ::iterator _curDir;
-    long curDir;//��ǰĿ¼
+    long curDir;//当前文件指针(值为存储目录树的数组下标)
 public:
     DOS(string fname="virtDisk.vd");
     ~DOS();
