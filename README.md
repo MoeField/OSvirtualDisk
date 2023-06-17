@@ -50,5 +50,5 @@
 #### ·int cat_a(string, vector<char> & ); 写文件（尾部增加）
 	
 ## 4.主函数命令解析
-### ·通过getline()读入一行命令，以空格为分隔符解析到vector<string>数组中。
-### ·解析命令，调用对应DOS函数
+#### ·通过getline()读入一行命令，以空格为分隔符解析到vector<string>数组中。
+#### ·解析命令，调用对应DOS函数
